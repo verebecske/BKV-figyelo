@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="refresh" content="60">
+    <title>{{title}}</title>
+  </head>
+  <body>
+    <div class="container">
+      <h1>{{title}}</h1>
+      <h2>Járművek:</h2>
+      <ul> 
+      {% for key, value in nest_list.items() %}
+      {{key}}
+      <ul>
+      {% for item in value %}
+      <li>{{ item }}</li>
+      {% endfor %}
+      </ul>
+      {% endfor %}
+      </ul>
+      <br>
+      <h4>Aktuális idő: {{ current_time | datetimefilter }}</h4>
+    </div>
+  </body>
+</html>

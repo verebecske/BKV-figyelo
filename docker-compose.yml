@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  reverse-proxy:
+    image: traefik:v2.6
+    ports:
+      - "80:80"
+      - "443:443"    
+    container_name: traefik
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik/static.yml:/etc/traefik/traefik.yml:ro
+      - ./traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
+      # - ./traefik/certs:/tools/certs
+  webserver:
+    container_name: bkk-figyelo
+    build: ./webserver
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.webserver.rule=Host(`localhost`)
+      - traefik.http.routers.webserver.tls=true
+      - traefik.http.routers.webserver.middlewares=webserver
+      - traefik.http.middlewares.webserver.headers.framedeny=true
+      - traefik.http.middlewares.webserver.headers.browserxssfilter=true
+      - traefik.http.middlewares.webserver.headers.contenttypenosniff=true
+      - traefik.http.middlewares.webserver.headers.accesscontrolallowmethods=GET
+      - traefik.http.middlewares.webserver.headers.accesscontrolalloworiginlist=https://localhost
+      - traefik.http.middlewares.webserver.headers.accesscontrolmaxage=100
+      - traefik.http.middlewares.webserver.headers.addvaryheader=true
+      - traefik.http.middlewares.webserver.headers.customresponseheaders.x-powered-by=One/1.2.11
+      - traefik.http.middlewares.webserver.headers.customresponseheaders.server=Server
+      - traefik.http.middlewares.webserver.headers.stsincludesubdomains=false
+      - traefik.http.middlewares.webserver.headers.stspreload=true
+      - traefik.http.middlewares.webserver.headers.stsseconds=31536000
+      - traefik.http.middlewares.webserver.headers.isdevelopment=false
+      - traefik.http.middlewares.webserver.headers.contentsecuritypolicy=default-src 'none'
+    #  - traefik.http.routers.router0.tls.options=tlsv13only
